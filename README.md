@@ -41,4 +41,4 @@ Process:
      --model_path /path/to/model
    ```
 
-5. Compare the embeddings in `test_suite.ipynb`
+5. Compare the embeddings in `analysis.ipynb`
