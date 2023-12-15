@@ -5,7 +5,7 @@ This experiment tests whether a large language model can "read past" OCR
 errors. Specifically, we identify a series of sentences from a corpus that
 contain OCR errors, which we then correct. Then, we send the erroneous sentence
 and the fixed sentence to a model and retrieve embeddings for both, with the
-hope that the these embeddings will be interchangeable.
+hope that these embeddings will be interchangeable.
 
 + Test corpus: a collection of 18-19C medical texts compiled by [Sarah
   Bull][sarah]
