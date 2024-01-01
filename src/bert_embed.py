@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 import json
 
-from llama_cpp import Llama
+from sentence_transformers import SentenceTransformer, models
 
 
 def main(args: argparse.Namespace) -> None:
@@ -17,14 +17,18 @@ def main(args: argparse.Namespace) -> None:
 
     assert len(uncorrected) == len(corrected), "Misaglined sentences!"
 
+    uncorrected_emb = MODEL.encode(uncorrected)
+    corrected_emb = MODEL.encode(corrected)
+
     with args.embeddings.open("w") as fout:
-        for err, fix in zip(uncorrected, corrected):
-            emb_err, emb_fix = LLM.embed(err), LLM.embed(fix)
+        for err, fix, emb_err, emb_fix in zip(
+            uncorrected, corrected, uncorrected_emb, corrected_emb
+        ):
             output = {
                 "err": err,
                 "fix": fix,
-                "emb_err": emb_err,
-                "emb_fix": emb_fix,
+                "emb_err": emb_err.tolist(),
+                "emb_fix": emb_fix.tolist(),
             }
             print(json.dumps(output), file=fout)
 
@@ -38,16 +42,26 @@ if __name__ == "__main__":
     parser.add_argument(
         "--embeddings", type=Path, help="Output embeddings (JSONL)"
     )
-    parser.add_argument("--model_path", type=Path, help="Path to LLM")
     parser.add_argument(
-        "--n_gpu_layers", type=int, default=0, help="Model layers on the GPU"
+        "--model_checkpoint",
+        type=str,
+        default="bert-base-uncased",
+        help="Model name",
+    )
+    parser.add_argument(
+        "--tokenizer_name", type=str, default="", help="Tokenizer name"
     )
     args = parser.parse_args()
 
-    LLM = Llama(
-        model_path=args.model_path.as_posix(),
-        embedding=True,
-        n_gpu_layers=args.n_gpu_layers,
-        verbose=True,
+    tokenizer = (
+        args.model_checkpoint
+        if args.tokenizer_name == ""
+        else args.tokenizer_name
     )
+    base = models.Transformer(
+        model_name_or_path=args.model_checkpoint,
+        tokenizer_name_or_path=tokenizer,
+    )
+    pooling = models.Pooling(base.get_word_embedding_dimension())
+    MODEL = SentenceTransformer(modules=[base, pooling])
     main(args)
