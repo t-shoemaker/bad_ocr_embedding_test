@@ -19,7 +19,7 @@ Process:
 
 1. Run the following:
    ```
-   ./src/sample_sents.py --indir /path/to/data --outfile /path/to/sample.txt
+   ./src/sample_sents.py --indir path/to/data --outfile path/to/sample.txt
    ```
    This will yank sentences from the documents using `nltk`'s `sent_tokenize()`
    function. That's by no means a perfect method, but we just need some
@@ -35,10 +35,21 @@ Process:
 4. Embed the sentences with the model:
    ```
    ./src/llama_embed.py \
-     --uncorrected /path/to/uncorrected.txt \
-     --corrected /path/to/corrected.txt \
-     --embeddings /path/to/embeddings.jsonl \
-     --model_path /path/to/model
+     --uncorrected path/to/uncorrected.txt \
+     --corrected path/to/corrected.txt \
+     --embeddings path/to/embeddings.jsonl \
+     --model_path path/to/model
    ```
 
 5. Compare the embeddings in `analysis.ipynb`
+
+6. **Optional:** To compare multiple embedding types, run the following:
+    ```
+    ./src/shuffle_and_measure.py \
+      --paths path/to/*.jsonl \
+      --outfile path/to/output.csv
+    ```
+    This will use the `shuffle_and_measure` function in `analysis.ipynb` and
+    store the result in a table
+
+7. **Optional:** Compare multiple embeddings in `analysis_aggregate.ipynb`
